@@ -1,0 +1,7 @@
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakTemplateDeclarations: Yes
+BasedOnStyle: Microsoft
+NamespaceIndentation: All
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 4
+BreakConstructorInitializersBeforeComma: true
