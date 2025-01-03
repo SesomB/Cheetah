@@ -1,10 +1,15 @@
+#pragma once
+
 #include <array>
 #include <stdint.h>
 #include <tuple>
 
+class TrackBucket;
+
 class TrackDescriptor
 {
   public:
-    uint32_t mLastSeen;
+    TrackBucket *mParentTrackBucket;
+    uint64_t mLastSeen;
     std::array<std::tuple<uint16_t, uint16_t>, 16> mMatchedRules;
 };

@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <rte_eal.h>
 
@@ -12,12 +12,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    benchmark::Initialize(&argc, argv);
-    if (benchmark::ReportUnrecognizedArguments(argc, argv))
-        return 1;
-
-    auto all_benchmarks_return_code = benchmark::RunSpecifiedBenchmarks();
+    testing::InitGoogleTest(&argc, argv);
+    auto all_tests_return_code = RUN_ALL_TESTS();
 
     rte_eal_cleanup();
-    return 0;
+
+    return all_tests_return_code;
 }
