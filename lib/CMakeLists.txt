@@ -1,1 +1,2 @@
+include_directories(json)
 add_subdirectory(PumaSDK)
