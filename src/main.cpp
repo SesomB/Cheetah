@@ -1,13 +1,10 @@
-#include "PumaSDK/DpdkPacket.hpp"
-#include <iostream>
 
-using namespace PumaSDK;
+#include "Common/json.hpp"
+#include <spdlog/spdlog.h>
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
-    rte_mbuf *mbuf = nullptr;
-    DpdkPacket myPacket(mbuf);
-
-    std::cout << "Hello World !" << std::endl;
+    spdlog::info("Hello, World!");
+    nlohmann::json j;
     return 0;
 }
