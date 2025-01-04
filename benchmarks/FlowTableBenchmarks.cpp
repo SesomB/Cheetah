@@ -1,46 +1,94 @@
 #include "FlowTable/FlowTable.hpp"
-#include "FlowTable/TrackDescriptor.hpp"
 #include <benchmark/benchmark.h>
+#include <cstdint>
+#include <iostream>
 #include <unistd.h>
 
-// Example benchmark for the add function
-void BM_CheetahAddition(benchmark::State &state)
+static void BM_FlowTableInsertion(benchmark::State &state)
 {
+    // 1. Generate random data once, outside the measurement loop.
+    std::vector<uint32_t> hashes(state.range(0));
+    for (int i = 0; i < state.range(0); ++i)
+    {
+        hashes[i] = static_cast<uint32_t>(rand());
+    }
 
-    FlowTable *mFlowTable = new FlowTable();
+    FiveTuple fiveTuple{0xc0a80000, 0x08080808, 12345, 80, 16};
 
-    uint32_t hash1 = 84812345;
-    FiveTuple fiveTuple{.mSourceAddress = 0xc0a80000,
-                        .mDestinationAddress = 0x08080808,
-                        .mSourcePort = 12345,
-                        .mDestinationPort = 80,
-                        .mProtocol = 0};
+    // 2. Construct the FlowTable once (expensive operation).
+    FlowTable *flowTable = new FlowTable();
 
-    int n = state.range(0);
+    // std::cout << "Inserting " << hashes.size() << " flows into the table" << std::endl;
+    // 3. Benchmark loop
+    for (auto _ : state)
+    {
+        // 4. Insert flows into the pre-constructed table
+        for (auto hash : hashes)
+        {
+            bool result = flowTable->insert(hash, fiveTuple, 10);
 
-    mFlowTable->insert(hash1, fiveTuple, 10);
-    fiveTuple.mProtocol++;
-    mFlowTable->insert(hash1, fiveTuple, 10);
-    fiveTuple.mProtocol += 2;
+            state.PauseTiming();
+            if (!result)
+                std::cout << "Failed to insert flow with hash: " << hash << std::endl;
+            flowTable->delete_entry(hash, flowTable->lookup(hash, fiveTuple));
+            state.ResumeTiming();
+            benchmark::DoNotOptimize(result);
+        }
+    }
+    delete flowTable;
+}
 
-    TrackDescriptor *lookup_result = nullptr;
-    bool result = false;
+static void BM_FlowTableTraverseList(benchmark::State &state)
+{
+    const uint32_t hash = 0x12345678;
+
+    // 1. Generate random five tuples once, outside the measurement loop.
+    int range = state.range(0);
+    std::vector<FiveTuple> fiveTuplesVec(range);
+    for (int i = 0; i < range; ++i)
+    {
+        FiveTuple tmp_fiveTuple{.mSourceAddress = static_cast<uint32_t>(rand()),
+                                .mDestinationAddress = static_cast<uint32_t>(rand()),
+                                .mSourcePort = static_cast<uint16_t>(rand() % 65535),
+                                .mDestinationPort = static_cast<uint16_t>(rand() % 65535),
+                                .mProtocol = static_cast<uint8_t>(rand() % 256)};
+
+        fiveTuplesVec[i] = tmp_fiveTuple;
+    }
+
+    // 2. Construct the FlowTable once (expensive operation).
+    FlowTable *flowTable = new FlowTable();
+
+    // 4. Insert flows into the pre-constructed table
+    for (auto &fiveTuple : fiveTuplesVec)
+    {
+        bool result = flowTable->insert(hash, fiveTuple, 10);
+        if (!result)
+            std::cout << "Failed to insert flow with hash: " << hash << std::endl;
+    }
+
+    // std::cout << "Inserting " << hashes.size() << " flows into the table" << std::endl;
+    // 3. Benchmark loop
+
+    auto fiveTupleBench = fiveTuplesVec.back();
 
     for (auto _ : state)
     {
-        result = mFlowTable->insert(hash1, fiveTuple, 10);
-
-        // Pause timing
-        // state.PauseTiming();
-        result = mFlowTable->delete_entry(hash1, mFlowTable->lookup(hash1, fiveTuple));
-        // state.ResumeTiming();
+        // // 4. Insert flows into the pre-constructed table
+        // for (auto &fiveTuple : fiveTuplesVec)
+        // {
+        bool result = flowTable->lookup(hash, fiveTupleBench);
+        state.PauseTiming();
+        if (!result)
+            std::cout << "Failed to lookup flow with hash: " << hash << std::endl;
+        state.ResumeTiming();
 
         benchmark::DoNotOptimize(result);
+        // }
     }
-
-    lookup_result = mFlowTable->lookup(hash1, fiveTuple);
-    delete mFlowTable;
+    delete flowTable;
 }
 
-// Register the benchmark
-BENCHMARK(BM_CheetahAddition)->RangeMultiplier(4)->Range(1 << 10, 1 << 20);
+// Example registration
+// BENCHMARK(BM_FlowTableInsertion)->RangeMultiplier(2)->Range(1, 64);
+BENCHMARK(BM_FlowTableTraverseList)->RangeMultiplier(2)->Range(1, 256);
