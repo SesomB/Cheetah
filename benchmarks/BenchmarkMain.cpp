@@ -4,13 +4,13 @@
 
 int main(int argc, char **argv)
 {
-    const char *args[] = {"-l", "0", NULL};
-    int ret = rte_eal_init(2, (char **)args);
-    if (ret < 0)
-    {
-        std::cerr << "Failed to initialize EAL" << std::endl;
-        return 1;
-    }
+    // const char *args[] = {"-l", "0", NULL};
+    // int ret = rte_eal_init(2, (char **)args);
+    // if (ret < 0)
+    // {
+    //     std::cerr << "Failed to initialize EAL" << std::endl;
+    //     return 1;
+    // }
 
     benchmark::Initialize(&argc, argv);
     if (benchmark::ReportUnrecognizedArguments(argc, argv))
@@ -18,6 +18,6 @@ int main(int argc, char **argv)
 
     auto all_benchmarks_return_code = benchmark::RunSpecifiedBenchmarks();
 
-    rte_eal_cleanup();
+    // rte_eal_cleanup();
     return 0;
 }

@@ -91,4 +91,4 @@ static void BM_FlowTableTraverseList(benchmark::State &state)
 
 // Example registration
 // BENCHMARK(BM_FlowTableInsertion)->RangeMultiplier(2)->Range(1, 64);
-BENCHMARK(BM_FlowTableTraverseList)->RangeMultiplier(2)->Range(1, 256);
+// BENCHMARK(BM_FlowTableTraverseList)->RangeMultiplier(2)->Range(1, 256);

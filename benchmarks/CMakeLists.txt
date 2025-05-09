@@ -4,6 +4,7 @@ include_directories("${CMAKE_SOURCE_DIR}/src")
 add_executable(cheetah-benchmarks 
     BenchmarkMain.cpp
     FlowTableBenchmarks.cpp
+    IntersectionBenchmarks.cpp
 )
 
 target_link_libraries(cheetah-benchmarks 
