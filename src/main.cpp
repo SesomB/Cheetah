@@ -1,7 +1,9 @@
 #include "AgingHashMap.hpp"
+#include <bitset>
 #include <cassert>
 #include <chrono>
 #include <iostream>
+#include <rte_common.h>
 #include <rte_eal.h>
 #include <spdlog/spdlog.h>
 #include <sstream>
@@ -86,8 +88,17 @@ bool expire_cb(const uint32_t &key, Person &value)
 
 using PersonCallbackFunction = bool (*)(const uint32_t &, Person &);
 
+using MyBitset = std::bitset<65536>;
+using MyDualBitset = std::tuple<const MyBitset *, const MyBitset *>;
+class MatchedFields
+{
+    std::array<const MyBitset *, 8> IntersectionBitsets;
+    std::array<MyDualBitset, 8> UnionBitsets;
+};
+
 int main(int argc, char *argv[])
 {
+    const auto z = sizeof(MyDualBitset);
     rte_eal_init(argc, argv);
     AgingHashMap<uint32_t, Person, 65535, PersonCallbackFunction> hashmap("with_cb", expire_cb);
 

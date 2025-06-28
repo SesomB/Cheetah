@@ -3,7 +3,8 @@ include_directories("${CMAKE_SOURCE_DIR}/src")
 # Define the test executable
 add_executable(cheetah-tests
     main.cpp
-    FlowTableTests.cpp
+    # FlowTableTests.cpp
+    MultiBufferTests.cpp
 )
 
 # Link the test executable with Google Test and MyLibrary
